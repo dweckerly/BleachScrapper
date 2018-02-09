@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 
 def s_get(url):
     try:
-        with closing(get(url, stream=True)) as response:
-            if is_good_response(response):
-                return response.content
+        with closing(get(url, stream=True)) as resp:
+            if is_good_response(resp):
+                return resp.content
             else:
                 return None
     except RequestException as e:
@@ -37,5 +37,12 @@ def main():
     for price in span:
         priceList.append(price.text[10:])
 
+    create_outfile(nameList, priceList)
+    
+
+def create_outfile(nameList, priceList):
+    file = open('bleachPrices.txt', 'w+')
+    for i in range(len(priceList)):
+        file.write(f'{nameList[i]} - {priceList[i]}\n')
 
 main()
