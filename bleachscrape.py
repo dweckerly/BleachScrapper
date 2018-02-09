@@ -1,4 +1,4 @@
-import walmartapi
+
 from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
@@ -23,24 +23,28 @@ def is_good_response(resp):
 
 def log_error(e):
     print(e)
-    
+
+def html_pull(url):
+    raw_html = s_get(url)
+    return BeautifulSoup(raw_html, 'html.parser')
+
 def restock_prices():
-    raw_html = s_get('http://www.restockit.com/cleaning-supplies/laundry-products/bleach.html')
-    html = BeautifulSoup(raw_html, 'html.parser')
+    html = html_pull('http://www.restockit.com/cleaning-supplies/laundry-products/bleach.html')
     
+    # get names of products
     div = html.findAll('div', {"class": "rsis_prodname"})
     nameList = []
     for name in div:
         nameList.append(name.text)
 
+    # get prices of products
     span = html.findAll('span', {"class": "ProdPriceBlack"})
     priceList = []
     for price in span:
         priceList.append(price.text[10:])
 
     create_outfile(nameList, priceList, get_stock('clx'), get_stock('jnj'))
-
-    
+   
 def get_stock(stock):
     raw_html = s_get(f'https://www.nasdaq.com/symbol/{stock}')
     html = BeautifulSoup(raw_html, 'html.parser')
@@ -48,7 +52,6 @@ def get_stock(stock):
     price = []
     for d in div:
         price.append(d.text)
-
     return price[0]
 
 def create_outfile(nameList, priceList, stock1, stock2):
@@ -57,9 +60,7 @@ def create_outfile(nameList, priceList, stock1, stock2):
     for i in range(len(priceList)):
         file.write(f'{nameList[i]} - {priceList[i]}\n')
     
-
 def main():
     restock_prices()
-    
     
 main()
