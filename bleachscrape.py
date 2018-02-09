@@ -22,8 +22,8 @@ def is_good_response(resp):
 
 def log_error(e):
     print(e)
-
-def main():
+    
+def restock_prices():
     raw_html = s_get('http://www.restockit.com/cleaning-supplies/laundry-products/bleach.html')
     html = BeautifulSoup(raw_html, 'html.parser')
     
@@ -37,12 +37,28 @@ def main():
     for price in span:
         priceList.append(price.text[10:])
 
-    create_outfile(nameList, priceList)
-    
+    create_outfile(nameList, priceList, get_stock('clx'), get_stock('jnj'))
 
-def create_outfile(nameList, priceList):
+    
+def get_stock(stock):
+    raw_html = s_get(f'https://www.nasdaq.com/symbol/{stock}')
+    html = BeautifulSoup(raw_html, 'html.parser')
+    div = html.findAll('div', {"class": "qwidget-dollar"})
+    price = []
+    for d in div:
+        price.append(d.text)
+
+    return price[0]
+
+def create_outfile(nameList, priceList, stock1, stock2):
     file = open('bleachPrices.txt', 'w+')
+    file.write(f'Stocks:\nCLX {stock1}\nJNJ {stock2}\n\n')
     for i in range(len(priceList)):
         file.write(f'{nameList[i]} - {priceList[i]}\n')
+    
 
+def main():
+    restock_prices()
+    
+    
 main()
