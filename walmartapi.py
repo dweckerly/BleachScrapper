@@ -19,5 +19,3 @@ def search_request(term):
 def upc_request(upc):
     req = urllib.request.urlopen(f"http://api.walmartlabs.com/v1/items?apiKey=dg2qjj742ydv4krde9mkxg6v&upc={upc}")
     get_data(req)
-
-WalmartAPI.search_request('bleach')
